@@ -2,53 +2,72 @@ const ping = require("ping");
 const axios = require("axios");
 
 /**
- * configuration
+ * contact groups
  */
-// host to check
-const hosts = [
-  //
-  { host: "127.0.0.1", name: "Local Machine" },
+const group1 = [
+  "4xxxxxxx", // david
+  "48888888", // some else
 ];
-const interval = 3; // interval to check, seconds
-const failLimit = 6; // send SMS after this limit reached
 
-// SMS receiver list
-const smsList = [
-  //
-  // "04xxxxxxxx",
+const group2 = [
+  "0499525618", // tim
 ];
 
 /**
- * check host
- * @param {*} hosts
+ * hostGroups
  */
-function checkOlt(hosts) {
-  hosts.forEach((host) => {
-    host.failCount = host.failCount || 0;
+const hostsGroup = [
+  // test
+  [
+    { host: "127.0.0.1", name: "Local", to: group1 },
+    { host: "192.168.1.104", name: "Test", to: group1 },
+  ],
 
-    ping.promise
-      .probe(host.host)
-      .then((res) => {
-        if (res.alive) {
-          if (host.failCount >= failLimit) {
-            sendSMS(smsList, host.name, "host is online.");
+  // redtrain
+  [],
+
+  // dv
+  [],
+];
+
+const interval = 3; // interval to check, seconds
+const failLimit = 6; // send SMS after this limit reached
+
+/**
+ * check host
+ * @param {*} hostsGroup
+ */
+function checkOlt(hostsGroup) {
+  process.stdout.write(".");
+
+  hostsGroup.forEach((hosts) => {
+    hosts.forEach((host) => {
+      host.failCount = host.failCount || 0;
+
+      ping.promise
+        .probe(host.host)
+        .then((res) => {
+          if (res.alive) {
+            if (host.failCount >= failLimit) {
+              sendSMS(host.to, host.name, "host is online.");
+            }
+            host.failCount = 0;
+
+            // console.log((new Date()).toLocaleString().toUpperCase() + ":" + host.name + " is alive.");
+          } else {
+            throw res;
           }
-          host.failCount = 0;
+        })
+        .catch(() => {
+          host.failCount++;
 
-          console.log(Date() + ":" + host.name + " is alive.");
-        } else {
-          throw res;
-        }
-      })
-      .catch(() => {
-        host.failCount++;
+          console.log(new Date().toLocaleString().toUpperCase() + ":" + host.name + " ping failed");
 
-        console.log(Date() + ":" + host.name + " ping failed");
-
-        if (host.failCount == failLimit) {
-          sendSMS(smsList, host.name, "host is offline");
-        }
-      });
+          if (host.failCount == failLimit) {
+            sendSMS(host.to, host.name, "host is offline");
+          }
+        });
+    });
   });
 }
 
@@ -74,4 +93,4 @@ function sendSMS(receivers, host, message) {
     });
 }
 
-setInterval(checkOlt, interval * 1000, hosts);
+setInterval(checkOlt, interval * 1000, hostsGroup);
