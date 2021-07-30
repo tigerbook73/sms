@@ -6,10 +6,10 @@ STEPS:
 
    ```
    # clone repository
-   git clone https://github.com/tigerbook73/sms.git sms
+   git clone https://github.com/tigerbook73/sms.git
 
    # or update repository
-   cd sms; git pull https://github.com/tigerbook73/sms.git
+   cd sms; git pull
     ```
 
 2. update packages
