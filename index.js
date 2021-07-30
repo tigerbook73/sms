@@ -1,37 +1,6 @@
 const ping = require("ping");
 const axios = require("axios");
-
-/**
- * contact groups
- */
-const group1 = [
-  "4xxxxxxx", // david
-  "48888888", // some else
-];
-
-const group2 = [
-  "0499525618", // tim
-];
-
-/**
- * hostGroups
- */
-const hostsGroup = [
-  // test
-  [
-    { host: "127.0.0.1", name: "Local", to: group1 },
-    { host: "192.168.1.104", name: "Test", to: group1 },
-  ],
-
-  // redtrain
-  [],
-
-  // dv
-  [],
-];
-
-const interval = 3; // interval to check, seconds
-const failLimit = 6; // send SMS after this limit reached
+const config = require("./config");
 
 /**
  * check host
@@ -48,7 +17,7 @@ function checkOlt(hostsGroup) {
         .probe(host.host)
         .then((res) => {
           if (res.alive) {
-            if (host.failCount >= failLimit) {
+            if (host.failCount >= config.failLimit) {
               sendSMS(host.to, host.name, "host is online.");
             }
             host.failCount = 0;
@@ -63,7 +32,7 @@ function checkOlt(hostsGroup) {
 
           console.log(new Date().toLocaleString().toUpperCase() + ":" + host.name + " ping failed");
 
-          if (host.failCount == failLimit) {
+          if (host.failCount == config.failLimit) {
             sendSMS(host.to, host.name, "host is offline");
           }
         });
@@ -93,4 +62,8 @@ function sendSMS(receivers, host, message) {
     });
 }
 
-setInterval(checkOlt, interval * 1000, hostsGroup);
+function main() {
+  setInterval(checkOlt, config.interval * 1000, config.hostsGroup);
+}
+
+main();
