@@ -14,7 +14,7 @@ STEPS:
 
 2. update packages
   ```
-  yarn
+  npm install
   ```
 
 3. copy "config.example.js" to "config.js"

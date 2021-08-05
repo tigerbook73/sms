@@ -30,7 +30,7 @@ function checkOlt(hostsGroup) {
         .catch(() => {
           host.failCount++;
 
-          console.log(new Date().toLocaleString().toUpperCase() + ":" + host.name + " ping failed");
+          // console.log(new Date().toLocaleString().toUpperCase() + ":" + host.name + " ping failed");
 
           if (host.failCount == config.failLimit) {
             sendSMS(host.to, host.name, "host is offline");
